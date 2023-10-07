@@ -8,7 +8,7 @@ var paddle2Y = 685,paddle2Height = 70;
 
 var score1 = 0, score2 =0;
 var paddle1Y;
-
+bordrer = 2.5
 var  playerscore =0;
 var audio1;
 var pcscore =0;
@@ -23,11 +23,24 @@ var ball = {
 
 function setup(){
   var canvas =  createCanvas(700,600);
+  canvas.parent('canvas')
+  video = createCapture(VIDEO)
+  video.hide();
+  poseNet = ml5.poseNet(video, modelLoaded);
+  poseNet.on('pose', gotPoses);
 }
-
-
+function modelLoaded() {
+  console.log('Posenet pretends that it works')
+}
+function gotPoses(results) {
+  console.log(results)
+  if(results.length > 0) {
+      rx = results[0].pose.rightWrist.x;
+      ry = results[0].pose.rightWrist.y;
+      console.log(rx + " " + ry);
+  }
+}
 function draw(){
-
  background(0); 
 
  fill("black");
@@ -97,9 +110,9 @@ function drawScore(){
     fill("white");
     stroke(250,0,0)
     text("Player:",100,50)
-    text(playerscore,140,50);
+    text(playerscore,100,75);
     text("Computer:",500,50)
-    text(pcscore,555,50)
+    text(pcscore,500,75)
 }
 
 
@@ -114,13 +127,13 @@ function move(){
    if(ball.x+ball.r>width-ball.r/2){
        ball.dx=-ball.dx-0.5;       
    }
-  if (ball.x-2.5*ball.r/2< 0){
+  if (ball.x-bordrer*ball.r/2< 0){
   if (ball.y >= paddle1Y&& ball.y <= paddle1Y + paddle1Height) {
     ball.dx = -ball.dx+0.5;
     playerscore++;
   }
   else{
-    pcscore++;
+    pcscore++
     reset();
     navigator.vibrate(100);
   }
@@ -132,7 +145,7 @@ if(pcscore ==4){
     fill("white");
     stroke("white");
     textSize(25)
-    text("Game Over!☹☹",width/2,height/2);
+    text("Game Over!☹",width/2,height/2);
     text("Reload The Page!",width/2,height/2+30)
     noLoop();
     pcscore = 0;
@@ -149,7 +162,7 @@ function models(){
     fill(255);
     noStroke();
     text("Width:"+width,135,15);
-    text("Speed:"+abs(ball.dx),50,15);
+    text("Speed:"+abs(round(ball.dx)),50,15);
     text("Height:"+height,235,15)
 }
 
